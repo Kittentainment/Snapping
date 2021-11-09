@@ -9,12 +9,12 @@ namespace Moving
     {
         [SerializeField] private float movementSpeed = 1;
         
-        [CanBeNull] private SnappingObj _selection;
+        [CanBeNull] private SnappingObjWrapper _selection;
 
-        public void SelectAnObject([NotNull] SnappingObj obj)
+        public void SelectAnObject([NotNull] SnappingObjWrapper objWrapper)
         {
             DeselectObject();
-            _selection = obj ? obj : throw new ArgumentNullException(nameof(obj));
+            _selection = objWrapper ? objWrapper : throw new ArgumentNullException(nameof(objWrapper));
             _selection.MovementHasStarted();
             Debug.Log($"selected an object: {_selection.gameObject.name}");
         }
@@ -33,6 +33,21 @@ namespace Moving
                 _selection.transform.Translate(movement * deltaTime * movementSpeed);
             }
         }
+
+
+
+        #region DEBUG
+
+        private void OnDrawGizmos()
+        {
+            if (_selection)
+            {
+                Gizmos.color = new Color(0, 0, 1, 0.2f);
+                Gizmos.DrawCube(_selection.transform.position, new Vector3(0.5f, 0.5f, 0.5f));
+            }
+        }
+
+        #endregion
         
     }
 }

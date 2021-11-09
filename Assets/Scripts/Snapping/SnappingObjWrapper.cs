@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Snapping
 {
-    public class SnappingObj : MonoBehaviour
+    public class SnappingObjWrapper : MonoBehaviour
     {
         private readonly List<Anchor> _anchors = new List<Anchor>();
         

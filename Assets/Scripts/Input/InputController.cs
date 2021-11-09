@@ -32,24 +32,24 @@ namespace Input
             if (Camera.main is null) return;
 
             var ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-            SnappingObj otherObj = null;
+            SnappingObjWrapper otherObjWrapper = null;
             if (Physics.Raycast(ray, out var hit))
             {
                 var go = hit.transform.gameObject;
-                var snappingObj = go.GetComponentInParent<SnappingObj>();
+                var snappingObj = go.GetComponentInParent<SnappingObjWrapper>();
                 if (snappingObj != null)
                 {
-                    otherObj = snappingObj;
+                    otherObjWrapper = snappingObj;
                 }
             }
 
-            if (otherObj is null)
+            if (otherObjWrapper is null)
             {
                 _moveObjectController.DeselectObject();
             }
             else
             {
-                _moveObjectController.SelectAnObject(otherObj);
+                _moveObjectController.SelectAnObject(otherObjWrapper);
             }
         }
         
