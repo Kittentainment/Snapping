@@ -12,8 +12,13 @@ namespace Snapping
         
         private ObjToSnap _objToSnap;
 
+        /// <summary>
+        /// Whether this object is currently selected and being moved.
+        /// </summary>
         [SerializeField] private bool isBeingMoved = false;
-        private bool isSnapping = false;
+        
+        public bool IsSnapping => CurrentSnapping != null;
+        [CanBeNull] public SnappingResult CurrentSnapping { get; private set; }
 
         private void Awake()
         {
@@ -33,26 +38,36 @@ namespace Snapping
         {
             if (isBeingMoved)
             {
-                var nearestSnapping = GetNearestSnapping();
-
-                if (nearestSnapping != null)
-                {
-                    Debug.Log($"Found Snapping: {nearestSnapping}");
-                    SnapToPosition(nearestSnapping);
-                } else if (isSnapping)
-                {
-                    ResetObjToSnap();
-                }
+                UpdateCurrentSnapping();
             }
         }
+
+
+        /// <summary>
+        /// Tells the object that it has been selected and is now being moved.
+        /// From now on it will check for snapping and snap to places until let go again with LetGoAndSnap.
+        /// </summary>
+        public void MovementHasStarted()
+        {
+            isBeingMoved = true;
+        }
         
-        
-        private void LetGoAndSnap()
+        /// <summary>
+        /// Let's the object go (deselect it) and tells it to stay where it is (or be moved by physics, depending on the
+        /// object, and the rigidbody etc., but not by the player anymore).
+        /// If it is currently in snapping range of an other object, it will now snap permanently to it (TODO with a fixed joint),
+        /// and reset the wrapped object to it's parents origin (but keeping it in place, as we move the wrapper as well).
+        ///
+        /// If we ever want to move two pieces simultaneously (maybe left and right hand in VR), we can check here if it
+        /// would snap to the piece in the other hand if let go.
+        /// </summary>
+        /// <exception cref="Exception">Thrown if the object has not been held in the first place.</exception>
+        public void LetGoAndSnap()
         {
             if (!isBeingMoved)
                 throw new Exception("Can't let go what was not being moved in the first place!");
+            //TODO
             
-            // TODO
             
             isBeingMoved = false;
         }
@@ -64,6 +79,26 @@ namespace Snapping
 
 
         [CanBeNull]
+        private void UpdateCurrentSnapping()
+        {
+            var wasSnappingBefore = IsSnapping;
+
+            CurrentSnapping = GetNearestSnapping();
+            
+            if (CurrentSnapping != null) Debug.Log($"Found Snapping: {CurrentSnapping}");
+            
+            
+            if (CurrentSnapping != null)
+            {
+                SnapToCurrentSnappingPosition();
+            } else if (wasSnappingBefore)
+            {
+                // If we were snapping before, but now aren't (meaning we left the radius of the anchor) then we want to
+                // reset it again to the origin of the wrapper.
+                ResetObjToSnap();
+            }
+        }
+
         private SnappingResult GetNearestSnapping()
         {
             return _anchors
@@ -75,21 +110,20 @@ namespace Snapping
                 .FirstOrDefault();
         }
 
-        private void SnapToPosition(SnappingResult nearestSnapping)
+        private void SnapToCurrentSnappingPosition()
         {
             ResetObjToSnap();
-            _objToSnap.transform.Translate(nearestSnapping.GetMovementVector());
-            isSnapping = true;
+            _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
         }
 
 
-        private class SnappingResult
+        public class SnappingResult
         {
             public SnappingResult(Anchor ownAnchor, Anchor otherAnchor, float distance)
             {
-                this.OwnAnchor = ownAnchor;
-                this.OtherAnchor = otherAnchor;
-                this.Distance = distance;
+                OwnAnchor = ownAnchor;
+                OtherAnchor = otherAnchor;
+                Distance = distance;
                 Debug.Log($"Created a new SnappingResult: {this}");
             }
 
