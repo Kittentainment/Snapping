@@ -13,6 +13,11 @@ namespace Snapping
         [SerializeField] private Vector3 normalDirection;
         public Vector3 NormalVector => transform.rotation * normalDirection.normalized;
 
+        /// <summary>
+        /// The position of this Anchor in World Coordinates.
+        ///
+        /// Just returns transform.position, but now it could be changed, so an anchor can be created differently, eg just from code.
+        /// </summary>
         public Vector3 AnchorPosition => transform.position;
 
         
