@@ -13,6 +13,7 @@ namespace Moving
 
         public void SelectAnObject([NotNull] SnappingObj obj)
         {
+            DeselectObject();
             _selection = obj ? obj : throw new ArgumentNullException(nameof(obj));
             _selection.MovementHasStarted();
             Debug.Log($"selected an object: {_selection.gameObject.name}");

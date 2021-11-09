@@ -15,8 +15,8 @@ namespace Snapping
         /// <summary>
         /// Whether this object is currently selected and being moved.
         /// </summary>
-        [SerializeField] private bool isBeingMoved = false;
-        
+        private bool IsBeingMoved { get; set; } = false;
+
         public bool IsSnapping => CurrentSnapping != null;
         [CanBeNull] public SnappingResult CurrentSnapping { get; private set; }
 
@@ -36,7 +36,7 @@ namespace Snapping
 
         private void FixedUpdate()
         {
-            if (isBeingMoved)
+            if (IsBeingMoved)
             {
                 UpdateCurrentSnapping();
             }
@@ -49,7 +49,7 @@ namespace Snapping
         /// </summary>
         public void MovementHasStarted()
         {
-            isBeingMoved = true;
+            IsBeingMoved = true;
         }
         
         /// <summary>
@@ -64,12 +64,16 @@ namespace Snapping
         /// <exception cref="Exception">Thrown if the object has not been held in the first place.</exception>
         public void LetGoAndSnap()
         {
-            if (!isBeingMoved)
+            if (!IsBeingMoved)
                 throw new Exception("Can't let go what was not being moved in the first place!");
-            //TODO
-            
-            
-            isBeingMoved = false;
+
+            if (IsSnapping)
+            {
+                transform.Translate(CurrentSnapping.GetMovementVector());
+                ResetObjToSnap();
+            }
+
+            IsBeingMoved = false;
         }
 
         private void ResetObjToSnap()
@@ -112,40 +116,12 @@ namespace Snapping
 
         private void SnapToCurrentSnappingPosition()
         {
+            if (CurrentSnapping == null)
+                throw new NullReferenceException("We can't snap when we have nothing to snap to");
             ResetObjToSnap();
             _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
         }
-
-
-        public class SnappingResult
-        {
-            public SnappingResult(Anchor ownAnchor, Anchor otherAnchor, float distance)
-            {
-                OwnAnchor = ownAnchor;
-                OtherAnchor = otherAnchor;
-                Distance = distance;
-                Debug.Log($"Created a new SnappingResult: {this}");
-            }
-
-            public readonly Anchor OwnAnchor;
-            public readonly Anchor OtherAnchor;
-            public readonly float Distance;
-
-            /// <summary>
-            /// The vector the ownAnchor needs to move, to be at the same position as the otherAnchor.
-            /// This can then be applied to the parent GO.
-            /// </summary>
-            /// <returns>The vector the ownAnchor needs to move, to be at the same position as the otherAnchor.</returns>
-            public Vector3 GetMovementVector()
-            {
-                return OtherAnchor.AnchorPosition - OwnAnchor.AnchorPosition;
-            }
-
-            public override string ToString()
-            {
-                return $"Distance: {Distance}";
-            }
-        }
+        
         
     }
 }
