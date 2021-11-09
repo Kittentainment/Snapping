@@ -112,5 +112,6 @@ namespace Snapping
                 return $"Distance: {Distance}";
             }
         }
+        
     }
 }
