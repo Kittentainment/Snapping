@@ -245,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4689768438070174034, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.83
+      value: 5.21
       objectReference: {fileID: 0}
     - target: {fileID: 4689768438070174034, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
       propertyPath: m_LocalPosition.y
@@ -253,7 +253,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4689768438070174034, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.04
+      value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 4689768438070174034, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
       propertyPath: m_LocalRotation.w
@@ -306,6 +306,10 @@ PrefabInstance:
     - target: {fileID: 6777022993457241466, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
       propertyPath: m_Name
       value: Anchor 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8477556014148568473, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}
+      propertyPath: <SnappingRadius>k__BackingField
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4689768438070174035, guid: 585de2b63ab0848bebc7bd202586f871, type: 3}

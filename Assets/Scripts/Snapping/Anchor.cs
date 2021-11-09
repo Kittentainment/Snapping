@@ -14,37 +14,9 @@ namespace Snapping
         public Vector3 NormalVector => transform.rotation * normalDirection.normalized;
 
         public Vector3 AnchorPosition => transform.position;
+
         
-
-
-        #region Debug
-
-        [Header("Debug Settings")]
-    
-        [SerializeField]
-        private bool showDebugSettings = true;
-        private Color _gizmosColor = Color.red;
-        private Color _gizmosNormalColor = Color.green;
-        [SerializeField] private float gizmosSnappingVisibility = 0.2f;
-        [SerializeField] private float objectRadius = 0.2f;
-    
-    
-        private void OnDrawGizmos()
-        {
-            if (!showDebugSettings)
-                return;
         
-            var position = transform.position;
-            Gizmos.color = new Color(_gizmosColor.r, _gizmosColor.g, _gizmosColor.b, gizmosSnappingVisibility);
-            Gizmos.DrawSphere(position, SnappingRadius);
-            Gizmos.color = new Color(_gizmosColor.r, _gizmosColor.g, _gizmosColor.b, 1f);
-            Gizmos.DrawSphere(position, objectRadius);
-            Gizmos.color = new Color(_gizmosNormalColor.r, _gizmosNormalColor.g, _gizmosNormalColor.b, 1f);
-            Gizmos.DrawLine(position, position + NormalVector);
-        }
-
-        #endregion
-
 
         /// <summary>
         /// Returns a list of other Anchors which are in Range of this Anchor's SnappingRadius and do not belong to the same SnappingObj.
@@ -69,5 +41,45 @@ namespace Snapping
 
             return anchorsInRange;
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        #region Debug
+
+        [Header("Debug Settings")]
+    
+        [SerializeField]
+        private bool showDebugSettings = true;
+
+        private Color _gizmosColor = Color.red;
+
+        private Color _gizmosNormalColor = Color.green;
+
+        [SerializeField] private float gizmosSnappingVisibility = 0.2f;
+
+        [SerializeField] private float objectRadius = 0.2f;
+
+
+        private void OnDrawGizmos()
+        {
+            if (!showDebugSettings)
+                return;
+        
+            var position = transform.position;
+            Gizmos.color = new Color(_gizmosColor.r, _gizmosColor.g, _gizmosColor.b, gizmosSnappingVisibility);
+            Gizmos.DrawSphere(position, SnappingRadius);
+            Gizmos.color = new Color(_gizmosColor.r, _gizmosColor.g, _gizmosColor.b, 1f);
+            Gizmos.DrawSphere(position, objectRadius);
+            Gizmos.color = new Color(_gizmosNormalColor.r, _gizmosNormalColor.g, _gizmosNormalColor.b, 1f);
+            Gizmos.DrawLine(position, position + NormalVector);
+        }
+
+        #endregion
     }
 }
