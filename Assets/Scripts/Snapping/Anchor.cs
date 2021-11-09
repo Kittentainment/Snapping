@@ -53,23 +53,18 @@ namespace Snapping
         /// <returns>A list of other Anchors which are in Range of this Anchor's SnappingRadius and do not belong to the same SnappingObj.</returns>
         public IEnumerable<Anchor> GetOtherAnchorsInRange(List<Anchor> ownAnchors)
         {
-            Debug.Log("GetOtherAnchorsInRange");
+            // Debug.Log("GetOtherAnchorsInRange");
             ownAnchors ??= new List<Anchor>();
-            var anchorsInRange = Physics.OverlapSphere(this.AnchorPosition, this.SnappingRadius,
-                    LayerMask.NameToLayer("AnchorLayer"))
+            var anchorsInRange = Physics.OverlapSphere(this.AnchorPosition, this.SnappingRadius)
                 // Get the Anchor Components (if they exist):
-                .Select(coll =>
-                {
-                    Debug.Log(coll);
-                    return coll.gameObject.GetComponent<Anchor>();
-                })
+                .Select(coll => coll.gameObject.GetComponent<Anchor>())
                 .Where(anchor => anchor != null)
                 // Only check anchors not belonging to this SnappingObj:
                 .Where(anchor => !ownAnchors.Contains(anchor))
                 .ToList();
             if (anchorsInRange.Count > 0)
             {
-                Debug.Log("Found Anchors in Range!");
+                Debug.Log("Anchor::GetOtherAnchorsInRange - Found Anchors in Range!");
             }
 
             return anchorsInRange;
