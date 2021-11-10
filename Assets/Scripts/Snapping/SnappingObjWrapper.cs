@@ -70,8 +70,8 @@ namespace Snapping
             if (IsSnapping)
             {
                 // transform.Translate(CurrentSnapping.GetMovementVector());
-                ApplySnappingToTransform(transform, CurrentSnapping);
                 ResetObjToSnap();
+                ApplySnappingToTransform(transform, CurrentSnapping);
             }
 
             IsBeingMoved = false;
@@ -79,15 +79,19 @@ namespace Snapping
 
         private void ResetObjToSnap()
         {
-            _objToSnap.transform.localPosition = Vector3.zero;
-            _objToSnap.transform.localRotation.Set(0, 0, 0, 0);
+            var objToSnapTransform = _objToSnap.transform;
+            objToSnapTransform.localPosition = Vector3.zero;
+            // _objToSnap.transform.rotation.Set(Quaternion.identity.x, Quaternion.identity.y, Quaternion.identity.z, Quaternion.identity.w);
+            objToSnapTransform.localEulerAngles = Vector3.zero;
         }
 
         private static void ApplySnappingToTransform(Transform transform, SnappingResult snappingResult)
         {
-            transform.Translate(snappingResult.GetMovementVector());
+            var movementVector = snappingResult.GetMovementVector();
+            var rotation = snappingResult.GetRotation();
+            transform.Translate(movementVector);
             RotateAround(transform, snappingResult.OtherAnchor.transform.position, snappingResult.GetRotation());
-            transform.localRotation = snappingResult.GetRotation();
+            transform.localRotation = rotation;
         }
         
         static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
@@ -137,6 +141,21 @@ namespace Snapping
                 .OrderBy(result => result.Distance)
                 .FirstOrDefault();
         }
+
+
+
+        #region DEBUG
+
+        private void OnDrawGizmos()
+        {
+            if (CurrentSnapping != null)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition, CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
+            }
+        }
+
+        #endregion
 
 
     }
