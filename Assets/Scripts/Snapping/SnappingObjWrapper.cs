@@ -89,9 +89,9 @@ namespace Snapping
         {
             var movementVector = snappingResult.GetMovementVector();
             var rotation = snappingResult.GetRotation();
-            RotateAround(transform, snappingResult.OtherAnchor.transform.position, snappingResult.GetRotation());
             transform.Translate(movementVector);
-            transform.localRotation = rotation;
+            RotateAround(transform, snappingResult.OtherAnchor.transform.position, rotation);
+            // transform.localRotation = rotation;
         }
         
         /// <summary>
