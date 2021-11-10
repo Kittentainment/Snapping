@@ -9,6 +9,10 @@ namespace Snapping
     {
         [field: SerializeField]
         [field: Range(0, 10f)] public float SnappingRadius { get; private set; } = 0.5f;
+        /// <summary>
+        /// It only snaps, if the angle of the other normalDirection is 180-SnappingAngle (as normals snap to 180 degree)
+        /// </summary>
+        [field: SerializeField] public float SnappingAngle { get; private set; } = 120;
 
         [SerializeField] private Vector3 normalDirection;
         public Vector3 NormalVector => transform.rotation * normalDirection.normalized;
@@ -40,6 +44,7 @@ namespace Snapping
                 .Where(anchor => !ownAnchors.Contains(anchor))
                 // TODO maybe only take anchors where the angle between the two normals are big enough (no small, as they need to point in opposite directions)
                 //      then we can "snap off" two objects
+                .Where(anchor => Vector3.Angle(anchor.NormalVector, NormalVector) > 180 - SnappingAngle)
                 .ToList();
             if (anchorsInRange.Count > 0)
             {
