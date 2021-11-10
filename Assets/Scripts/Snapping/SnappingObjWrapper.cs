@@ -89,7 +89,7 @@ namespace Snapping
         {
             var movementVector = snappingResult.GetMovementVector();
             var rotation = snappingResult.GetRotation();
-            transform.Translate(movementVector);
+            transform.Translate(movementVector, Space.World);
             RotateAround(transform, snappingResult.OtherAnchor.transform.position, rotation);
             // transform.localRotation = rotation;
         }
