@@ -69,7 +69,8 @@ namespace Snapping
 
             if (IsSnapping)
             {
-                transform.Translate(CurrentSnapping.GetMovementVector());
+                // transform.Translate(CurrentSnapping.GetMovementVector());
+                ApplySnappingToTransform(transform, CurrentSnapping);
                 ResetObjToSnap();
             }
 
@@ -79,6 +80,29 @@ namespace Snapping
         private void ResetObjToSnap()
         {
             _objToSnap.transform.localPosition = Vector3.zero;
+            _objToSnap.transform.localRotation.Set(0, 0, 0, 0);
+        }
+
+        private static void ApplySnappingToTransform(Transform transform, SnappingResult snappingResult)
+        {
+            transform.Translate(snappingResult.GetMovementVector());
+            RotateAround(transform, snappingResult.OtherAnchor.transform.position, snappingResult.GetRotation());
+            transform.localRotation = snappingResult.GetRotation();
+        }
+        
+        static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
+        {
+            transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
+            transform.rotation = rot * transform.rotation;
+        }
+        
+        private void SnapToCurrentSnappingPosition()
+        {
+            if (CurrentSnapping == null)
+                throw new NullReferenceException("We can't snap when we have nothing to snap to");
+            ResetObjToSnap();
+            // _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
+            ApplySnappingToTransform(_objToSnap.transform, CurrentSnapping);
         }
 
 
@@ -114,14 +138,6 @@ namespace Snapping
                 .FirstOrDefault();
         }
 
-        private void SnapToCurrentSnappingPosition()
-        {
-            if (CurrentSnapping == null)
-                throw new NullReferenceException("We can't snap when we have nothing to snap to");
-            ResetObjToSnap();
-            _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
-        }
-        
-        
+
     }
 }
