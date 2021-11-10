@@ -38,6 +38,8 @@ namespace Snapping
                 .Where(anchor => anchor != null)
                 // Only check anchors not belonging to this SnappingObj:
                 .Where(anchor => !ownAnchors.Contains(anchor))
+                // TODO maybe only take anchors where the angle between the two normals are big enough (no small, as they need to point in opposite directions)
+                //      then we can "snap off" two objects
                 .ToList();
             if (anchorsInRange.Count > 0)
             {
