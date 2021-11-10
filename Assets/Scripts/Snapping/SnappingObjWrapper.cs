@@ -89,11 +89,17 @@ namespace Snapping
         {
             var movementVector = snappingResult.GetMovementVector();
             var rotation = snappingResult.GetRotation();
-            transform.Translate(movementVector);
             RotateAround(transform, snappingResult.OtherAnchor.transform.position, snappingResult.GetRotation());
+            transform.Translate(movementVector);
             transform.localRotation = rotation;
         }
         
+        /// <summary>
+        /// From https://answers.unity.com/questions/1751620/rotating-around-a-pivot-point-using-a-quaternion.html
+        /// </summary>
+        /// <param name="transform">The transform to rotate</param>
+        /// <param name="pivotPoint">The point to rotate it around</param>
+        /// <param name="rot">The rotation to apply</param>
         static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
         {
             transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
