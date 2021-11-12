@@ -1,12 +1,19 @@
+using System.Linq;
 using UnityEngine;
 
 namespace Snapping
 {
     public class ObjToSnap : MonoBehaviour
     {
-        
-        
-        
+
+        private Material CreatePreviewMaterial()
+        {
+            var previewMat = Resources.LoadAll("Materials", typeof(Material))
+                .Cast<Material>()
+                .First(mat => mat.name.Equals("SnappingPreview"));
+            return previewMat;
+        }
+
         /// <summary>
         /// Returns an object to represent the position, where this object will snap to, if let go.
         /// This method can be changed and overwritten to calculate the object or clone it from a prefab.
@@ -14,15 +21,17 @@ namespace Snapping
         /// It will be destroyed after it's not needed anymore (snapping radius left, or let got), therefore if another
         /// object is used as a base, it has to be cloned (for example with Instantiate).
         /// </summary>
-        public GameObject GetSnappingPreview
+        public GameObject CreateSnappingPreviewObject(Transform parentTransform)
         {
-            get
+            var previewGO = Instantiate(gameObject, parentTransform, true);
+            previewGO.GetComponent<ObjToSnap>().enabled = false;
+            var previewMaterial = CreatePreviewMaterial();
+            foreach (var meshRenderer in previewGO.GetComponentsInChildren<MeshRenderer>())
             {
-                var previewGO = Instantiate(gameObject);
-                previewGO.GetComponent<ObjToSnap>().enabled = false;
-                
-                return previewGO;
+                meshRenderer.material = previewMaterial;
             }
+
+            return previewGO;
         }
     }
 }
