@@ -7,10 +7,15 @@ namespace Snapping
 {
     public class Anchor : MonoBehaviour
     {
+        #region GlobalSettings
+
         /// <summary>
         /// It only snaps, if the angle of the other normalDirection to this Anchor's normalDirection is [180-SnappingAngle] (as normals snap to opposite direction)
         /// </summary>
         public static float SnappingAngle { get; set; } = 120;
+
+        #endregion
+        
 
         [field: SerializeField]
         [field: Range(0, 10f)] public float SnappingRadius { get; private set; } = 0.5f;
