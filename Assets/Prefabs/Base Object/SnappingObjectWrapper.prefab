@@ -90,6 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SnappingRadius>k__BackingField: 0.5
+  <SnappingAngle>k__BackingField: 120
   normalDirection: {x: 1, y: 0, z: 0}
   showDebugSettings: 1
   gizmosSnappingVisibility: 0.2
@@ -152,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SnappingRadius>k__BackingField: 0.5
+  <SnappingAngle>k__BackingField: 45
   normalDirection: {x: -1, y: 0, z: 0}
   showDebugSettings: 1
   gizmosSnappingVisibility: 0.2
