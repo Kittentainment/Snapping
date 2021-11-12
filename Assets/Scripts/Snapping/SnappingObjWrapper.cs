@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -20,7 +19,7 @@ namespace Snapping
 
 
         private readonly List<Anchor> _anchors = new List<Anchor>();
-        
+
         private ObjToSnap _objToSnap;
 
         /// <summary>
@@ -31,7 +30,9 @@ namespace Snapping
         public bool IsSnapping => CurrentSnapping != null;
         [CanBeNull] public SnappingResult CurrentSnapping { get; private set; }
         [CanBeNull] private GameObject _currentSnappingPreviewGO;
-        [CanBeNull] private GameObject CurrentSnappingPreviewGO
+
+        [CanBeNull]
+        private GameObject CurrentSnappingPreviewGO
         {
             get => _currentSnappingPreviewGO;
             set
@@ -40,10 +41,11 @@ namespace Snapping
                 {
                     Destroy(_currentSnappingPreviewGO);
                 }
+
                 _currentSnappingPreviewGO = value;
             }
         }
-        
+
 
         private void Awake()
         {
@@ -51,7 +53,8 @@ namespace Snapping
             _anchors.AddRange(gameObject.GetComponentsInChildren<Anchor>());
             if (!_objToSnap.transform.localPosition.Equals(Vector3.zero))
             {
-                Debug.LogWarning($"The ObjToSnap should be at (0, 0, 0) instead of {transform.localPosition} (relative to it's parent object)");
+                Debug.LogWarning(
+                    $"The ObjToSnap should be at (0, 0, 0) instead of {transform.localPosition} (relative to it's parent object)");
                 ResetTransformLocally(_objToSnap.transform);
             }
 
@@ -76,7 +79,7 @@ namespace Snapping
         {
             IsBeingMoved = true;
         }
-        
+
         /// <summary>
         /// Let's the object go (deselect it) and tells it to stay where it is (or be moved by physics, depending on the
         /// object, and the rigidbody etc., but not by the player anymore).
@@ -120,19 +123,19 @@ namespace Snapping
             RotateAround(transform, snappingResult.OtherAnchor.transform.position, rotation);
             // transform.localRotation = rotation;
         }
-        
+
         /// <summary>
         /// From https://answers.unity.com/questions/1751620/rotating-around-a-pivot-point-using-a-quaternion.html
         /// </summary>
         /// <param name="transform">The transform to rotate</param>
         /// <param name="pivotPoint">The point to rotate it around</param>
         /// <param name="rot">The rotation to apply</param>
-        static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
+        static void RotateAround(Transform transform, Vector3 pivotPoint, Quaternion rot)
         {
             transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
             transform.rotation = rot * transform.rotation;
         }
-        
+
         /// <summary>
         /// Snaps either the ObjToSnap or the Preview Object to the position the snap would happen if let go,
         /// but without letting it go (meaning the parent GO stays in place).
@@ -144,14 +147,15 @@ namespace Snapping
             if (CurrentSnapping == null)
                 throw new NullReferenceException("We can't snap when we have nothing to snap to");
             if (UseSnappingPreviews && CurrentSnappingPreviewGO == null)
-                throw new NullReferenceException("Please create the snapping preview object before calling SnapToCurrentSnappingPosition()");
-            
+                throw new NullReferenceException(
+                    "Please create the snapping preview object before calling SnapToCurrentSnappingPosition()");
+
             var transformToSnap = UseSnappingPreviews ? CurrentSnappingPreviewGO.transform : _objToSnap.transform;
             ResetTransformLocally(transformToSnap);
             // _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
             ApplySnappingToTransform(transformToSnap, CurrentSnapping);
         }
-        
+
         /// <summary>
         /// Check if we are in snapping radius, and handle the cases of a new snapping, a changed snapping, or a stopped snapping.
         /// </summary>
@@ -171,10 +175,10 @@ namespace Snapping
                     CurrentSnappingPreviewGO = null;
                 else
                     ResetTransformLocally(_objToSnap.transform);
-                
+
                 return;
             }
-            
+
             // We found a snapping
             Debug.Log($"Found Snapping: {CurrentSnapping}");
             if (!wasSnappingBefore || snappingAnchorBefore == CurrentSnapping.OtherAnchor)
@@ -185,6 +189,7 @@ namespace Snapping
                     CurrentSnappingPreviewGO = _objToSnap.CreateSnappingPreviewObject(this.transform);
                 }
             }
+
             SnapToCurrentSnappingPosition();
         }
 
@@ -200,7 +205,6 @@ namespace Snapping
         }
 
 
-
         #region DEBUG
 
         private void OnDrawGizmos()
@@ -208,12 +212,11 @@ namespace Snapping
             if (CurrentSnapping != null)
             {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition, CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
+                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition,
+                    CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
             }
         }
 
         #endregion
-
-
     }
 }

@@ -16,10 +16,12 @@ namespace Snapping
         /// The Anchor of the object which is being moved.
         /// </summary>
         public readonly Anchor OwnAnchor;
+
         /// <summary>
         /// The Anchor of the object which OwnAnchor is in range of and should snap to.
         /// </summary>
         public readonly Anchor OtherAnchor;
+
         /// <summary>
         /// The Distance between the two Anchor's positions.
         /// Needs to be calculated once and then stay fixed, to get the lowest one by exact comparison with the LINQ. (See Anchor::GetOtherAnchorsInRange)

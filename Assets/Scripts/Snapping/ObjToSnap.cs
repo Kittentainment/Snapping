@@ -5,7 +5,6 @@ namespace Snapping
 {
     public class ObjToSnap : MonoBehaviour
     {
-
         private Material CreatePreviewMaterial()
         {
             var previewMat = Resources.LoadAll("Materials", typeof(Material))

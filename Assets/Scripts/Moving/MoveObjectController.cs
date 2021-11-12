@@ -8,7 +8,7 @@ namespace Moving
     public class MoveObjectController : MonoBehaviour
     {
         [SerializeField] private float movementSpeed = 1;
-        
+
         [CanBeNull] private SnappingObjWrapper _selection;
 
         public void SelectAnObject([NotNull] SnappingObjWrapper objWrapper)
@@ -35,7 +35,6 @@ namespace Moving
         }
 
 
-
         #region DEBUG
 
         private void OnDrawGizmos()
@@ -48,6 +47,5 @@ namespace Moving
         }
 
         #endregion
-        
     }
 }

@@ -9,9 +9,9 @@ namespace Input
     public class InputController : MonoBehaviour
     {
         private MoveObjectController _moveObjectController;
-        
+
         private Vector2 _movementInput = Vector2.zero;
-        
+
         private void Awake()
         {
             _moveObjectController = FindObjectOfType<MoveObjectController>();
@@ -21,14 +21,15 @@ namespace Input
         {
             if (!_movementInput.Equals(Vector2.zero))
             {
-                _moveObjectController.MoveSelection(new Vector3(_movementInput.x, 0, _movementInput.y), Time.fixedDeltaTime);
+                _moveObjectController.MoveSelection(new Vector3(_movementInput.x, 0, _movementInput.y),
+                    Time.fixedDeltaTime);
             }
         }
 
         public void OnClick(InputAction.CallbackContext context)
         {
             if (!context.performed) return;
-            
+
             if (Camera.main is null) return;
 
             var ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -52,7 +53,7 @@ namespace Input
                 _moveObjectController.SelectAnObject(otherObjWrapper);
             }
         }
-        
+
         public void OnMove(InputAction.CallbackContext context)
         {
             if (context.performed)
@@ -65,6 +66,5 @@ namespace Input
                 _movementInput = Vector2.zero;
             }
         }
-        
     }
 }

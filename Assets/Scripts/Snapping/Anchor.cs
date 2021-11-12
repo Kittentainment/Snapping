@@ -15,10 +15,11 @@ namespace Snapping
         public static float SnappingAngle { get; set; } = 120;
 
         #endregion
-        
+
 
         [field: SerializeField]
-        [field: Range(0, 10f)] public float SnappingRadius { get; private set; } = 0.5f;
+        [field: Range(0, 10f)]
+        public float SnappingRadius { get; private set; } = 0.5f;
 
         [SerializeField] private Vector3 normalDirection;
         public Vector3 NormalVector => transform.rotation * normalDirection.normalized;
@@ -30,8 +31,6 @@ namespace Snapping
         /// </summary>
         public Vector3 AnchorPosition => transform.position;
 
-        
-        
 
         /// <summary>
         /// Returns a list of other Anchors which are in Range of this Anchor's SnappingRadius and do not belong to the same SnappingObj.
@@ -59,20 +58,11 @@ namespace Snapping
 
             return anchorsInRange;
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
         #region Debug
 
-        [Header("Debug Settings")]
-    
-        [SerializeField]
+        [Header("Debug Settings")] [SerializeField]
         private bool showDebugSettings = true;
 
         private Color _gizmosColor = Color.red;
@@ -88,7 +78,7 @@ namespace Snapping
         {
             if (!showDebugSettings)
                 return;
-        
+
             var position = transform.position;
             Gizmos.color = new Color(_gizmosColor.r, _gizmosColor.g, _gizmosColor.b, gizmosSnappingVisibility);
             Gizmos.DrawSphere(position, SnappingRadius);
