@@ -7,6 +7,11 @@ namespace Snapping
 {
     public class Anchor : MonoBehaviour
     {
+        /// <summary>
+        /// It only snaps, if the angle of the other normalDirection to this Anchor's normalDirection is [180-SnappingAngle] (as normals snap to opposite direction)
+        /// </summary>
+        public static float SnappingAngle { get; set; } = 120;
+
         [field: SerializeField]
         [field: Range(0, 10f)] public float SnappingRadius { get; private set; } = 0.5f;
 
@@ -38,6 +43,9 @@ namespace Snapping
                 .Where(anchor => anchor != null)
                 // Only check anchors not belonging to this SnappingObj:
                 .Where(anchor => !ownAnchors.Contains(anchor))
+                // TODO maybe only take anchors where the angle between the two normals are big enough (no small, as they need to point in opposite directions)
+                //      then we can "snap off" two objects
+                .Where(anchor => Mathf.Abs(Vector3.Angle(anchor.NormalVector, NormalVector)) > 180 - SnappingAngle)
                 .ToList();
             if (anchorsInRange.Count > 0)
             {

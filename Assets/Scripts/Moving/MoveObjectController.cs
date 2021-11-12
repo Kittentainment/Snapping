@@ -27,10 +27,10 @@ namespace Moving
 
         public void MoveSelection(Vector3 movement, float deltaTime)
         {
-            Debug.Log($"MoveObjectController::MoveSelection({movement}, {deltaTime})");
+            // Debug.Log($"MoveObjectController::MoveSelection({movement}, {deltaTime})");
             if (_selection != null)
             {
-                _selection.transform.Translate(movement * deltaTime * movementSpeed);
+                _selection.transform.Translate(movement * deltaTime * movementSpeed, Space.World);
             }
         }
 

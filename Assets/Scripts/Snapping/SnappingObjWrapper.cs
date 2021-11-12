@@ -69,8 +69,9 @@ namespace Snapping
 
             if (IsSnapping)
             {
-                transform.Translate(CurrentSnapping.GetMovementVector());
+                // transform.Translate(CurrentSnapping.GetMovementVector());
                 ResetObjToSnap();
+                ApplySnappingToTransform(transform, CurrentSnapping);
             }
 
             IsBeingMoved = false;
@@ -78,7 +79,40 @@ namespace Snapping
 
         private void ResetObjToSnap()
         {
-            _objToSnap.transform.localPosition = Vector3.zero;
+            var objToSnapTransform = _objToSnap.transform;
+            objToSnapTransform.localPosition = Vector3.zero;
+            // _objToSnap.transform.rotation.Set(Quaternion.identity.x, Quaternion.identity.y, Quaternion.identity.z, Quaternion.identity.w);
+            objToSnapTransform.localEulerAngles = Vector3.zero;
+        }
+
+        private static void ApplySnappingToTransform(Transform transform, SnappingResult snappingResult)
+        {
+            var movementVector = snappingResult.GetMovementVector();
+            var rotation = snappingResult.GetRotation();
+            transform.Translate(movementVector, Space.World);
+            RotateAround(transform, snappingResult.OtherAnchor.transform.position, rotation);
+            // transform.localRotation = rotation;
+        }
+        
+        /// <summary>
+        /// From https://answers.unity.com/questions/1751620/rotating-around-a-pivot-point-using-a-quaternion.html
+        /// </summary>
+        /// <param name="transform">The transform to rotate</param>
+        /// <param name="pivotPoint">The point to rotate it around</param>
+        /// <param name="rot">The rotation to apply</param>
+        static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
+        {
+            transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
+            transform.rotation = rot * transform.rotation;
+        }
+        
+        private void SnapToCurrentSnappingPosition()
+        {
+            if (CurrentSnapping == null)
+                throw new NullReferenceException("We can't snap when we have nothing to snap to");
+            ResetObjToSnap();
+            // _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
+            ApplySnappingToTransform(_objToSnap.transform, CurrentSnapping);
         }
 
 
@@ -114,14 +148,21 @@ namespace Snapping
                 .FirstOrDefault();
         }
 
-        private void SnapToCurrentSnappingPosition()
+
+
+        #region DEBUG
+
+        private void OnDrawGizmos()
         {
-            if (CurrentSnapping == null)
-                throw new NullReferenceException("We can't snap when we have nothing to snap to");
-            ResetObjToSnap();
-            _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
+            if (CurrentSnapping != null)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition, CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
+            }
         }
-        
-        
+
+        #endregion
+
+
     }
 }
