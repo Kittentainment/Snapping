@@ -603,6 +603,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 586217907675506369, guid: fc8e7cdd5c33a463e8c9002e81b4c5c2, type: 3}
+      propertyPath: snappingLayer
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fc8e7cdd5c33a463e8c9002e81b4c5c2, type: 3}
 --- !u!1001 &6047569136238107180
