@@ -13,7 +13,7 @@ namespace Snapping
         /// <summary>
         /// Whether to use a preview to indicate where the object will snap, if let go, or to snap the object directly.
         /// </summary>
-        public static bool UseSnappingPreviews { get; set; } = true;
+        public static bool UseSnappingPreviews { get; set; } = false;
 
         #endregion
 
@@ -22,10 +22,19 @@ namespace Snapping
 
         private ObjToSnap _objToSnap;
 
+        private bool _isBeingMoved = false;
         /// <summary>
         /// Whether this object is currently selected and being moved.
         /// </summary>
-        private bool IsBeingMoved { get; set; } = false;
+        private bool IsBeingMoved
+        {
+            get => _isBeingMoved;
+            set
+            {
+                _isBeingMoved = value;
+                _anchors.ForEach(anchor => anchor.IsBeingMoved = value);
+            }
+        }
 
         public bool IsSnapping => CurrentSnapping != null;
         [CanBeNull] public SnappingResult CurrentSnapping { get; private set; }
@@ -79,7 +88,7 @@ namespace Snapping
         {
             IsBeingMoved = true;
         }
-
+        
         /// <summary>
         /// Let's the object go (deselect it) and tells it to stay where it is (or be moved by physics, depending on the
         /// object, and the rigidbody etc., but not by the player anymore).
