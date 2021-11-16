@@ -8,17 +8,53 @@ namespace Snapping
 {
     public class SnappingObjWrapper : MonoBehaviour
     {
+        #region GlobalSettings
+
+        /// <summary>
+        /// Whether to use a preview to indicate where the object will snap, if let go, or to snap the object directly.
+        /// </summary>
+        public static bool UseSnappingPreviews { get; set; } = false;
+
+        #endregion
+
+
         private readonly List<Anchor> _anchors = new List<Anchor>();
-        
+
         private ObjToSnap _objToSnap;
 
+        private bool _isBeingMoved = false;
         /// <summary>
         /// Whether this object is currently selected and being moved.
         /// </summary>
-        private bool IsBeingMoved { get; set; } = false;
+        private bool IsBeingMoved
+        {
+            get => _isBeingMoved;
+            set
+            {
+                _isBeingMoved = value;
+                _anchors.ForEach(anchor => anchor.IsBeingMoved = value);
+            }
+        }
 
         public bool IsSnapping => CurrentSnapping != null;
         [CanBeNull] public SnappingResult CurrentSnapping { get; private set; }
+        [CanBeNull] private GameObject _currentSnappingPreviewGO;
+
+        [CanBeNull]
+        private GameObject CurrentSnappingPreviewGO
+        {
+            get => _currentSnappingPreviewGO;
+            set
+            {
+                if (_currentSnappingPreviewGO != null)
+                {
+                    Destroy(_currentSnappingPreviewGO);
+                }
+
+                _currentSnappingPreviewGO = value;
+            }
+        }
+
 
         private void Awake()
         {
@@ -26,8 +62,9 @@ namespace Snapping
             _anchors.AddRange(gameObject.GetComponentsInChildren<Anchor>());
             if (!_objToSnap.transform.localPosition.Equals(Vector3.zero))
             {
-                Debug.LogWarning($"The ObjToSnap should be at (0, 0, 0) instead of {transform.localPosition} (relative to it's parent object)");
-                ResetObjToSnap();
+                Debug.LogWarning(
+                    $"The ObjToSnap should be at (0, 0, 0) instead of {transform.localPosition} (relative to it's parent object)");
+                ResetTransformLocally(_objToSnap.transform);
             }
 
             Debug.Log($"Anchors Found: {_anchors.Count}");
@@ -69,20 +106,22 @@ namespace Snapping
 
             if (IsSnapping)
             {
-                // transform.Translate(CurrentSnapping.GetMovementVector());
-                ResetObjToSnap();
+                if (UseSnappingPreviews)
+                    CurrentSnappingPreviewGO = null;
+                else
+                    ResetTransformLocally(_objToSnap.transform);
+
                 ApplySnappingToTransform(transform, CurrentSnapping);
             }
 
             IsBeingMoved = false;
         }
 
-        private void ResetObjToSnap()
+        private static void ResetTransformLocally(Transform transformToReset)
         {
-            var objToSnapTransform = _objToSnap.transform;
-            objToSnapTransform.localPosition = Vector3.zero;
+            transformToReset.localPosition = Vector3.zero;
             // _objToSnap.transform.rotation.Set(Quaternion.identity.x, Quaternion.identity.y, Quaternion.identity.z, Quaternion.identity.w);
-            objToSnapTransform.localEulerAngles = Vector3.zero;
+            transformToReset.localEulerAngles = Vector3.zero;
         }
 
         private static void ApplySnappingToTransform(Transform transform, SnappingResult snappingResult)
@@ -93,48 +132,74 @@ namespace Snapping
             RotateAround(transform, snappingResult.OtherAnchor.transform.position, rotation);
             // transform.localRotation = rotation;
         }
-        
+
         /// <summary>
         /// From https://answers.unity.com/questions/1751620/rotating-around-a-pivot-point-using-a-quaternion.html
         /// </summary>
         /// <param name="transform">The transform to rotate</param>
         /// <param name="pivotPoint">The point to rotate it around</param>
         /// <param name="rot">The rotation to apply</param>
-        static void RotateAround (Transform transform, Vector3 pivotPoint, Quaternion rot)
+        static void RotateAround(Transform transform, Vector3 pivotPoint, Quaternion rot)
         {
             transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
             transform.rotation = rot * transform.rotation;
         }
-        
+
+        /// <summary>
+        /// Snaps either the ObjToSnap or the Preview Object to the position the snap would happen if let go,
+        /// but without letting it go (meaning the parent GO stays in place).
+        /// First resets the ObjToSnap or the preview.
+        /// </summary>
+        /// <exception cref="NullReferenceException">If (CurrentSnapping == null) or (UseSnappingPreviews && CurrentSnappingPreviewGO == null)</exception>
         private void SnapToCurrentSnappingPosition()
         {
             if (CurrentSnapping == null)
                 throw new NullReferenceException("We can't snap when we have nothing to snap to");
-            ResetObjToSnap();
+            if (UseSnappingPreviews && CurrentSnappingPreviewGO == null)
+                throw new NullReferenceException(
+                    "Please create the snapping preview object before calling SnapToCurrentSnappingPosition()");
+
+            var transformToSnap = UseSnappingPreviews ? CurrentSnappingPreviewGO.transform : _objToSnap.transform;
+            ResetTransformLocally(transformToSnap);
             // _objToSnap.transform.Translate(CurrentSnapping.GetMovementVector());
-            ApplySnappingToTransform(_objToSnap.transform, CurrentSnapping);
+            ApplySnappingToTransform(transformToSnap, CurrentSnapping);
         }
 
-
-        [CanBeNull]
+        /// <summary>
+        /// Check if we are in snapping radius, and handle the cases of a new snapping, a changed snapping, or a stopped snapping.
+        /// </summary>
         private void UpdateCurrentSnapping()
         {
             var wasSnappingBefore = IsSnapping;
+            var snappingAnchorBefore = CurrentSnapping?.OtherAnchor;
 
             CurrentSnapping = GetNearestSnapping();
-            
-            if (CurrentSnapping != null) Debug.Log($"Found Snapping: {CurrentSnapping}");
-            
-            
-            if (CurrentSnapping != null)
+
+            if (CurrentSnapping == null)
             {
-                SnapToCurrentSnappingPosition();
-            } else if (wasSnappingBefore)
-            {
-                // If we were snapping before, but now aren't (meaning we left the radius of the anchor) then we want to
-                // reset it again to the origin of the wrapper.
-                ResetObjToSnap();
+                if (!wasSnappingBefore) return;
+                // We were snapping before, but now aren't (meaning we left the radius of the anchor).
+                // Clean up snapping stuff:
+                if (UseSnappingPreviews)
+                    CurrentSnappingPreviewGO = null;
+                else
+                    ResetTransformLocally(_objToSnap.transform);
+
+                return;
             }
+
+            // We found a snapping
+            Debug.Log($"Found Snapping: {CurrentSnapping}");
+            if (!wasSnappingBefore || snappingAnchorBefore == CurrentSnapping.OtherAnchor)
+            {
+                // It's a new snapping! Create a preview object if we use previews.
+                if (UseSnappingPreviews)
+                {
+                    CurrentSnappingPreviewGO = _objToSnap.CreateSnappingPreviewObject(this.transform);
+                }
+            }
+
+            SnapToCurrentSnappingPosition();
         }
 
         private SnappingResult GetNearestSnapping()
@@ -149,7 +214,6 @@ namespace Snapping
         }
 
 
-
         #region DEBUG
 
         private void OnDrawGizmos()
@@ -157,12 +221,11 @@ namespace Snapping
             if (CurrentSnapping != null)
             {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition, CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
+                Gizmos.DrawLine(CurrentSnapping.OwnAnchor.AnchorPosition,
+                    CurrentSnapping.OwnAnchor.AnchorPosition + CurrentSnapping.GetMovementVector());
             }
         }
 
         #endregion
-
-
     }
 }
